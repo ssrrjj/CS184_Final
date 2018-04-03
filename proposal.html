@@ -48,18 +48,24 @@
 
     <!-- Goals and Deliverables -->
     <h3 align="middle">Goals and Deliverables</h3>
-    <h4 align="middle">What we plan to deliver</h4>
-    <h4 align="middle">What we hope to deliver</h4>
+    <h4 >Basic goals</h4>
+	<p>
+	We plan to simulate a light field camera so that we can adjust aperture and refocus after the scene has already been rendered. To accomplish this, we need to capture more light information than just the radiance at each pixel. Instead of 2D photograph, we have to store the 4D light field. Light field can be represented as a function L(u,v,s,t). Our goal is to render light field images that store this L function so that we can refocus after the scene is rendered. In addition, we plan to implement a GUI with which users can adjust aperture and refocus the rendered image and observe the effect in real time.
+	</p>
+    <h4 >Some further thoughts</h4>
+	<p>
+	Since we need to capture richer information, light field images will cost much more space and time to render. Therefore, efficiency becomes a problem. We can implement our project on GPU or try some other ways to improve efficiency.
+	</p>
     <br>
 
     <!-- Schedule  -->
     <h3 align="middle">Schedule</h3>
     <h4> Week 1 &nbsp &nbsp 4.2-4.8</h4>
-    <p>Todo</p>
+    <p>Todo: Figure out what data structures to use and how to capture light field</p>
     <h4> Week 2 &nbsp &nbsp 4.9-4.15</h4>
-    <p>Todo</p>
+    <p>Todo: Implement our thoughts in first week and implement functions to change aperture and refocus</p>
     <h4> Week 3 &nbsp &nbsp 4.16-4.22</h4>
-    <p>Todo</p>
+    <p>Todo: Implement GUI and try to improve efficiency</p>
     <h4> Week 4 &nbsp &nbsp 4.23-4.30</h4>
     <p>Todo: Prepare for final presentation.</p>
     <h4> Week 5 &nbsp &nbsp 5.1-5.4</h4>
