@@ -199,7 +199,7 @@ class PathTracer {
   /**
    * Trace a camera ray given by the pixel coordinate.
    */
-  Spectrum raytrace_pixel(size_t x, size_t y);
+  std::vector<Spectrum> raytrace_pixel(size_t x, size_t y);
 
   /**
    * Raytrace a tile of the scene and update the frame buffer. Is run
@@ -261,7 +261,7 @@ class PathTracer {
   EnvironmentLight *envLight;    ///< environment map
   Sampler2D* gridSampler;        ///< samples unit grid
   Sampler3D* hemisphereSampler;  ///< samples unit hemisphere
-  HDRImageBuffer sampleBuffer;   ///< sample buffer
+  LFImageBuffer sampleBuffer;   ///< sample buffer
   ImageBuffer frameBuffer;       ///< frame buffer
   Timer timer;                   ///< performance test timer
 

@@ -232,10 +232,15 @@ struct LFImageBuffer {
    * \param w new width of the image
    * \param h new height of the image
    */
-  void resize(size_t w, size_t h) {
+  void resize(size_t w, size_t h, size_t subh, size_t subw) {
     this->w = w;
     this->h = h;
+    this->subw = subw;
+    this->subh = subh;
     data.resize(w * h);
+    for (auto &grid : data) {
+      grid.resize(subh * subw);
+    }
     clear();
   }
 

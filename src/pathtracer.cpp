@@ -131,7 +131,7 @@ void PathTracer::set_frame_size(size_t width, size_t height) {
   if (state != INIT && state != READY) {
     stop();
   }
-  sampleBuffer.resize(width, height);
+  sampleBuffer.resize(width, height, 4, 4);
   frameBuffer.resize(width, height);
   cell_tl = Vector2D(0,0); 
   cell_br = Vector2D(width, height);
@@ -202,7 +202,7 @@ void PathTracer::clear() {
   scene = NULL;
   camera = NULL;
   selectionHistory.pop();
-  sampleBuffer.resize(0, 0);
+  sampleBuffer.resize(0, 0, 0, 0);
   frameBuffer.resize(0, 0);
   state = INIT;
   render_cell = false;
@@ -759,7 +759,7 @@ Spectrum PathTracer::est_radiance_global_illumination(const Ray &r) {
   return L_out;
 }
 
-Spectrum PathTracer::raytrace_pixel(size_t x, size_t y) {
+std::vector<Spectrum> PathTracer::raytrace_pixel(size_t x, size_t y) {
 
   // TODO (Part 1.1):
   // Make a loop that generates num_samples camera rays and traces them 
@@ -769,46 +769,37 @@ Spectrum PathTracer::raytrace_pixel(size_t x, size_t y) {
   // TODO (Part 5):
   // Modify your implementation to include adaptive sampling.
   // Use the command line parameters "samplesPerBatch" and "maxTolerance"
-
+  std::vector<Spectrum> grid;
   int num_samples = ns_aa;            // total samples to evaluate
   Vector2D origin = Vector2D(x,y);    // bottom left corner of the pixel
   int w = sampleBuffer.w, h =sampleBuffer.h;
   Vector2D lensample = gridSampler->get_sample();
-  if (num_samples == 1)
+  if (num_samples == 1) {
 //    return est_radiance_global_illumination(camera->generate_ray((x+0.5)/w, (y+0.5)/h));
-    return est_radiance_global_illumination(camera->generate_ray_for_thin_lens((x+0.5)/w, (y+0.5)/h, lensample.x, lensample.y));
+    grid.push_back( est_radiance_global_illumination(camera->generate_ray_for_thin_lens((x+0.5)/w, (y+0.5)/h, lensample.x, lensample.y)));
+    return grid;
+  }
 
-  int i;
+  int i,j;
 
-  Vector2D p;
-  Spectrum ans  = Spectrum(0.0,0.0,0.0);
+  Vector2D lensp;
   Spectrum newsample;
-  int n = 0;
-  double s1 = 0;
-  double s2 = 0;
-  double miu, var;
-  double limit = 0;
+  int subw = sampleBuffer.subw;
+  int subh = sampleBuffer.subh;
+  float wstep = 1.0/(subw+1);
+  float hstep = 1.0/(subh+1);
+  grid.resize(subh * subw);
+  for (i = 1 ; i < subh+1; i ++) {
+    for (j = 1 ; j < subw + 1 ; j ++) {
+      lensp = Vector2D(i*hstep, j*wstep);
+      newsample = est_radiance_global_illumination(camera->generate_ray_for_thin_lens((x+0.5)/w, (y+0.5)/h, lensp.x, lensp.y));
+      grid[(i-1)*subh+j-1] = newsample;
 
-  for (i = 0 ; i < num_samples; i ++) {
-    p = gridSampler->get_sample();
-    lensample = gridSampler->get_sample();
-    n ++;
-    newsample = est_radiance_global_illumination(camera->generate_ray_for_thin_lens((x+p.x)/w, (y+p.y)/h, lensample.x, lensample.y));
-//    newsample = est_radiance_global_illumination(camera->generate_ray((x+p.x)/w, (y+p.y)/h));
-    s1 += newsample.illum();
-    s2 += newsample.illum()*newsample.illum();
-    ans += newsample;
-    //if (n%samplesPerBatch == 0) {
-      //miu = s1/n;
-      //var = (s2-s1*s1/n)/(n-1);
-      //limit = 1.96*sqrt(var)/sqrt(n);
-      //if (limit <= maxTolerance*miu) 
-        //break;
-    //}
-    
+    }
+
   }
 //  sampleCountBuffer[y*w+x] += n;
-  return ans/(float(n));
+  return grid;
 }
 
 void PathTracer::raytrace_tile(int tile_x, int tile_y,
@@ -830,7 +821,7 @@ void PathTracer::raytrace_tile(int tile_x, int tile_y,
   for (size_t y = tile_start_y; y < tile_end_y; y++) {
     if (!continueRaytracing) return;
     for (size_t x = tile_start_x; x < tile_end_x; x++) {
-        Spectrum s = raytrace_pixel(x, y);
+        std::vector<Spectrum> s = raytrace_pixel(x, y);
         sampleBuffer.update_pixel(s, x, y);
     }
   }
