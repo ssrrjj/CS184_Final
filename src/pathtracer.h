@@ -138,7 +138,7 @@ class PathTracer {
   /**
    * If the pathtracer is in READY, transition to RENDERING.
    */
-  void start_raytracing();
+  void start_raytracing(int refocus);
 
   void render_to_file(std::string filename, size_t x, size_t y, size_t dx, size_t dy);
   
@@ -205,12 +205,12 @@ class PathTracer {
    * Raytrace a tile of the scene and update the frame buffer. Is run
    * in a worker thread.
    */
-  void raytrace_tile(int tile_x, int tile_y, int tile_w, int tile_h);
+  void raytrace_tile(int tile_x, int tile_y, int tile_w, int tile_h, int refocus);
 
   /**
    * Implementation of a ray tracer worker thread
    */
-  void worker_thread();
+  void worker_thread(int refocus);
 
   /**
    * Log a ray miss.

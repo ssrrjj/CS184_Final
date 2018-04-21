@@ -439,7 +439,7 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
           case 'l': case 'L':
             pathtracer->stop();
             pathtracer->key_press(key);
-            pathtracer->start_raytracing();
+            pathtracer->start_raytracing(0);
             break;
           case 'F': case 'A':
           case 'C': 
@@ -448,7 +448,7 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
 
           case 'r': case 'R':
             pathtracer->stop();
-            pathtracer->start_raytracing();
+            pathtracer->start_raytracing(0);
             break;
 
           case 'd': case 'D':
@@ -465,7 +465,7 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
             break;
           case 'r': case 'R':
             pathtracer->stop();
-            pathtracer->start_raytracing();
+            pathtracer->start_raytracing(0);
             mode = RENDER_MODE;
             break;
           case ' ':
@@ -481,7 +481,7 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
         switch(key) {
           case 'r': case 'R':
             set_up_pathtracer();
-            pathtracer->start_raytracing();
+            pathtracer->start_raytracing(0);
             mode = RENDER_MODE;
             break;
           case 'v': case 'V':
@@ -559,7 +559,7 @@ void Application::mouse_released(e_mouse_button b) {
         pathtracer->cell_br = br;
         cout << "[PathTracer] Selected cell measures " << (int)(br.x-tl.x) << "x" << (int)(br.y-tl.y) << " pixels" << endl;
         pathtracer->stop();
-        pathtracer->start_raytracing();
+        pathtracer->start_raytracing(0);
       }
       break;
     case RIGHT:

@@ -189,7 +189,7 @@ Ray Camera::generate_ray(double x, double y) const {
 
 }
 
-Ray Camera::generate_ray_for_thin_lens(double x, double y, double rndR, double rndTheta) const {
+Ray Camera::generate_ray_for_thin_lens(double x, double y, double lenx, double leny) const {
 
     // Todo 3-2, Task 4:
     // compute position and direction of ray from the input sensor sample coordinate.
@@ -200,8 +200,8 @@ Ray Camera::generate_ray_for_thin_lens(double x, double y, double rndR, double r
   double w = 2*tan(radians(hFov)*.5);
   double h = 2*tan(radians(vFov)*.5);
   Vector3D r = bl + Vector3D(x*w, y * h,0);
-  Vector3D plens = Vector3D(lensRadius*sqrt(rndR)*cos(2*PI*rndTheta), 
-    lensRadius*sqrt(rndR)*sin(2*PI*rndTheta), 0);
+  Vector3D plens = Vector3D(lensRadius*2.0 * lenx - lensRadius, 
+    lensRadius*2*leny - lensRadius, 0);
   Vector3D pfoc = r*focalDistance;
   Vector3D plens_to_pfoc = pfoc-plens;
   plens_to_pfoc.normalize();

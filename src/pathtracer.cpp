@@ -215,7 +215,7 @@ void PathTracer::start_visualizing() {
   state = VISUALIZE;
 }
 
-void PathTracer::start_raytracing() {
+void PathTracer::start_raytracing(int refocus) {
   if (state != READY) return;
 
   // Intersection isect;
@@ -271,14 +271,14 @@ void PathTracer::start_raytracing() {
   // launch threads
   fprintf(stdout, "[PathTracer] Rendering... "); fflush(stdout);
   for (int i=0; i<numWorkerThreads; i++) {
-      workerThreads[i] = new std::thread(&PathTracer::worker_thread, this);
+      workerThreads[i] = new std::thread(&PathTracer::worker_thread, this, refocus);
   }
 }
 
 void PathTracer::render_to_file(string filename, size_t x, size_t y, size_t dx, size_t dy) {
   if (x == -1) {
     unique_lock<std::mutex> lk(m_done);
-    start_raytracing();
+    start_raytracing(0);
     cv_done.wait(lk, [this]{ return state == DONE; });
     lk.unlock();
     save_image(filename);
@@ -786,14 +786,14 @@ std::vector<Spectrum> PathTracer::raytrace_pixel(size_t x, size_t y) {
   Spectrum newsample;
   int subw = sampleBuffer.subw;
   int subh = sampleBuffer.subh;
-  float wstep = 1.0/(subw+1);
-  float hstep = 1.0/(subh+1);
+  double wstep = 1.0/subw;
+  double hstep = 1.0/subh;
   grid.resize(subh * subw);
-  for (i = 1 ; i < subh+1; i ++) {
-    for (j = 1 ; j < subw + 1 ; j ++) {
-      lensp = Vector2D(i*hstep, j*wstep);
+  for (i = 0 ; i < subh; i ++) {
+    for (j = 0 ; j < subw; j ++) {
+      lensp = Vector2D(i*hstep+hstep/2, j*wstep+wstep/2);
       newsample = est_radiance_global_illumination(camera->generate_ray_for_thin_lens((x+0.5)/w, (y+0.5)/h, lensp.x, lensp.y));
-      grid[(i-1)*subh+j-1] = newsample;
+      grid[i*subh+j] = newsample;
 
     }
 
@@ -801,9 +801,9 @@ std::vector<Spectrum> PathTracer::raytrace_pixel(size_t x, size_t y) {
 //  sampleCountBuffer[y*w+x] += n;
   return grid;
 }
-
+static double defaco = 0.0;
 void PathTracer::raytrace_tile(int tile_x, int tile_y,
-                               int tile_w, int tile_h) {
+                               int tile_w, int tile_h, int refocus) {
 
   size_t w = sampleBuffer.w;
   size_t h = sampleBuffer.h;
@@ -821,12 +821,20 @@ void PathTracer::raytrace_tile(int tile_x, int tile_y,
   for (size_t y = tile_start_y; y < tile_end_y; y++) {
     if (!continueRaytracing) return;
     for (size_t x = tile_start_x; x < tile_end_x; x++) {
-        std::vector<Spectrum> s = raytrace_pixel(x, y);
-        sampleBuffer.update_pixel(s, x, y);
+        if (refocus != 0) {
+          defaco += 0.1 * refocus;
+          sampleBuffer.Reocus(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco);
+        }
+        else {
+          std::vector<Spectrum> s = raytrace_pixel(x, y);
+          sampleBuffer.update_pixel(s, x, y);
+        }
     }
   }
 
   tile_samples[tile_idx_x + tile_idx_y * num_tiles_w] += 1;
+  if (refocus != 0)
+    return;
   sampleBuffer.toColor(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y);
 }
 
@@ -846,7 +854,7 @@ void PathTracer::raytrace_cell(ImageBuffer& buffer) {
   render_cell = true;
   {
     unique_lock<std::mutex> lk(m_done);
-    start_raytracing();
+    start_raytracing(0);
     cv_done.wait(lk, [this]{ return state == DONE; });
     lk.unlock();
   }
@@ -858,14 +866,14 @@ void PathTracer::raytrace_cell(ImageBuffer& buffer) {
   }
 }
 
-void PathTracer::worker_thread() {
+void PathTracer::worker_thread(int refocus) {
 
   Timer timer;
   timer.start();
-
+  printf("%d\n", refocus);
   WorkItem work;
   while (continueRaytracing && workQueue.try_get_work(&work)) {
-    raytrace_tile(work.tile_x, work.tile_y, work.tile_w, work.tile_h);
+    raytrace_tile(work.tile_x, work.tile_y, work.tile_w, work.tile_h, refocus);
     { 
       lock_guard<std::mutex> lk(m_done);
       ++tilesDone;

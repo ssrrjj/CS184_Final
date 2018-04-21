@@ -312,6 +312,7 @@ struct LFImageBuffer {
     }
   }
 */
+
   /**
    * Convert the given tile of the buffer to color.
    */
@@ -325,9 +326,38 @@ struct LFImageBuffer {
       for (size_t x = x0; x < x1; ++x) {
         std::vector<Spectrum> grid = data[x + y * w];
         Spectrum s = Spectrum(0, 0, 0);
-        int i, j;
         for (auto &spec : grid) {
           s += spec;
+        }
+        s = s/float(subw * subh);
+//        const Spectrum& s = data[x + y * w];
+        float r = pow(s.r * exposure, one_over_gamma);
+        float g = pow(s.g * exposure, one_over_gamma);
+        float b = pow(s.b * exposure, one_over_gamma);
+        target.update_pixel(Color(r, g, b, 1.0), x, y);
+      }
+    }
+  }
+
+  void getray(int x, int y, double d, double lenx, double leny) {
+     
+  }
+  void Refocus(ImageBuffer& target, size_t x0, size_t y0, size_t x1, size_t y1, double d) {
+
+    float gamma = 2.2f;
+    float level = 1.0f;
+    float wstep = 1.0/subw;
+    float hstep = 1.0/subh;
+    float one_over_gamma = 1.0f / gamma;
+    float exposure = sqrt(pow(2,level));
+    for (size_t y = y0; y < y1; ++y) {
+      for (size_t x = x0; x < x1; ++x) {
+        Spectrum s = Spectrum(0, 0, 0);
+        int i, j;
+        for (i = 0 ; i < subh; i ++) {
+          for (j = 0 ; j < subw; j ++) {
+
+          }
         }
         s = s/float(subw * subh);
 //        const Spectrum& s = data[x + y * w];
