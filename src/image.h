@@ -339,11 +339,38 @@ struct LFImageBuffer {
     }
   }
 
-  void getray(int x, int y, double d, double lenx, double leny) {
-     
+  Spectrum getray(double x, double y, double d, int lenx, int leny) {
+    double u,v;
+    double wstep = 1.0/subw;
+    double hstep = 1.0/subh;
+    u = u*hstep+hstep/2;
+    u = u*2*radius*u-radius;
+    v = v*wstep+wstep/2;
+    v = v*2*radius*v - radius;
+    x = -cw/2+cw*x;
+    y = -ch/2+ch*y;
+    double x1 = u + (x-u)/(1-d);
+    double y1 = v + (y-v)/(1-d);
+//    double x1 = focal/(focal+d)*(u+x)-u;
+//    double y1 = focal/(focal+d)*(v+y)-v;
+    x1 = (x1+cw/2)/cw;
+    y1 = (y1+ch/2)/ch;
+    x1 *= w;
+    y1 *= h;
+    x1-=0.5;
+    y1-=0.5;
+    int x0 = floor(x1), y0 = floor(y1);
+//    printf(" (%d, %d )", x0, y0);
+    Spectrum ret = Spectrum(0,0,0);
+    if (0<=x0&&x0<=w&&y0>=0&&y0<=h) {
+//      printf("!!\n");
+      ret = data[x0 + y0 * w][lenx*subw + leny];
+//      printf("%f, %f, %f\n", ret.r, ret.g, ret.b);
+    }
+    return ret;
+
   }
   void Refocus(ImageBuffer& target, size_t x0, size_t y0, size_t x1, size_t y1, double d) {
-
     float gamma = 2.2f;
     float level = 1.0f;
     float wstep = 1.0/subw;
@@ -356,11 +383,11 @@ struct LFImageBuffer {
         int i, j;
         for (i = 0 ; i < subh; i ++) {
           for (j = 0 ; j < subw; j ++) {
-
+            s += getray((x+0.5)/w, (y+0.5)/h, d, j,i);
           }
         }
+//        printf("\n");
         s = s/float(subw * subh);
-//        const Spectrum& s = data[x + y * w];
         float r = pow(s.r * exposure, one_over_gamma);
         float g = pow(s.g * exposure, one_over_gamma);
         float b = pow(s.b * exposure, one_over_gamma);
@@ -389,9 +416,10 @@ struct LFImageBuffer {
   size_t h; ///< height
   size_t subw;
   size_t subh;
-
+  double radius;
   std::vector<std::vector<Spectrum>> data; ///< pixel buffer
-
+  double cw, ch;
+  double focal;
 }; // class HDRImageBuffer
 
 } // namespace CGL
