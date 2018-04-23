@@ -821,17 +821,16 @@ void PathTracer::raytrace_tile(int tile_x, int tile_y,
   size_t tile_idx_x = tile_x / imageTileSize;
   size_t tile_idx_y = tile_y / imageTileSize;
   size_t num_samples_tile = tile_samples[tile_idx_x + tile_idx_y * num_tiles_w];
-
-  for (size_t y = tile_start_y; y < tile_end_y; y++) {
-    if (!continueRaytracing) return;
-    for (size_t x = tile_start_x; x < tile_end_x; x++) {
-        if (refocus != 0) {
-          sampleBuffer.Refocus(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco);
-        }
-        else {
+  if (refocus != 0) {
+    sampleBuffer.Refocus(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco);
+  }
+  else {
+    for (size_t y = tile_start_y; y < tile_end_y; y++) {
+      if (!continueRaytracing) return;
+        for (size_t x = tile_start_x; x < tile_end_x; x++) {
           std::vector<Spectrum> s = raytrace_pixel(x, y);
           sampleBuffer.update_pixel(s, x, y);
-        }
+      }
     }
   }
 

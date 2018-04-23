@@ -343,28 +343,31 @@ struct LFImageBuffer {
     double u,v;
     double wstep = 1.0/subw;
     double hstep = 1.0/subh;
-    u = u*hstep+hstep/2;
-    u = u*2*radius*u-radius;
-    v = v*wstep+wstep/2;
-    v = v*2*radius*v - radius;
-    x = -cw/2+cw*x;
-    y = -ch/2+ch*y;
-    double x1 = u + (x-u)/(1-d);
-    double y1 = v + (y-v)/(1-d);
+    u = lenx*hstep+hstep/2;
+    u = u*2*radius-radius;
+    v = leny*wstep+wstep/2;
+    v = v*2*radius - radius;
+//    double x1 = u + (x-u)/(1-d);
+//    double y1 = v + (y-v)/(1-d);
 //    double x1 = focal/(focal+d)*(u+x)-u;
 //    double y1 = focal/(focal+d)*(v+y)-v;
-    x1 = (x1+cw/2)/cw;
-    y1 = (y1+ch/2)/ch;
-    x1 *= w;
-    y1 *= h;
-    x1-=0.5;
-    y1-=0.5;
+    double x1, y1;
+    double C = w/cw*(1/(focal+d)-1/focal);
+    x1 = x+ u*C;
+    y1 = y+ v*C;
+    
     int x0 = floor(x1), y0 = floor(y1);
-//    printf(" (%d, %d )", x0, y0);
+
+//    printf("(%f,%f)", u, v);
     Spectrum ret = Spectrum(0,0,0);
-    if (0<=x0&&x0<=w&&y0>=0&&y0<=h) {
+    if (0<=x0&&x0<w-1&&y0>=0&&y0<h-1) {
 //      printf("!!\n");
-      ret = data[x0 + y0 * w][lenx*subw + leny];
+      double dx = x1-x0, dy = y1-y0;
+
+      ret = (1-dx)*(1-dy)*data[x0 + y0 * w][lenx*subw + leny]
+          + dx*(1-dy)*data[x0+1+y0*w][lenx*subw+leny]
+          + (1-dx)*dy*data[x0+y0*w+w][lenx*subw+leny]
+          + dx*dy*data[x0+1+y0*w+w][lenx*subw+leny];
 //      printf("%f, %f, %f\n", ret.r, ret.g, ret.b);
     }
     return ret;
@@ -383,7 +386,7 @@ struct LFImageBuffer {
         int i, j;
         for (i = 0 ; i < subh; i ++) {
           for (j = 0 ; j < subw; j ++) {
-            s += getray((x+0.5)/w, (y+0.5)/h, d, j,i);
+            s += getray(x, y, d, j,i);
           }
         }
 //        printf("\n");

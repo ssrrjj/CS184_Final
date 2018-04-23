@@ -454,7 +454,12 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
           case 'j': case 'J':
             printf("jjj\n");
             pathtracer->stop();
-            pathtracer->start_raytracing(-0.5);
+            pathtracer->start_raytracing(-0.1);
+            mode = RENDER_MODE;
+            break;
+          case 'h': case 'H':
+            pathtracer->stop();
+            pathtracer->start_raytracing(0.1);
             mode = RENDER_MODE;
             break;
           case 'd': case 'D':
@@ -481,9 +486,15 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
           case 'j': case 'J':
             printf("jjj\n");
             pathtracer->stop();
-            pathtracer->start_raytracing(-0.5);
+            pathtracer->start_raytracing(-0.1);
             mode = RENDER_MODE;
             break;
+          case 'h': case 'H':
+            pathtracer->stop();
+            pathtracer->start_raytracing(0.1);
+            mode = RENDER_MODE;
+            break;
+          
           default:
             pathtracer->key_press(key);
         }
