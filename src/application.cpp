@@ -447,12 +447,10 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
             break;
 
           case 'r': case 'R':
-            printf("render_mode\n");
             pathtracer->stop();
             pathtracer->start_raytracing(0);
             break;
           case 'j': case 'J':
-            printf("jjj\n");
             pathtracer->stop();
             pathtracer->start_raytracing(-0.1);
             mode = RENDER_MODE;
@@ -475,7 +473,6 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
             to_edit_mode();
             break;
           case 'r': case 'R':
-            printf("render_mode\n");
             pathtracer->stop();
             pathtracer->start_raytracing(0);
             mode = RENDER_MODE;
@@ -484,7 +481,6 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
             reset_camera();
             break;
           case 'j': case 'J':
-            printf("jjj\n");
             pathtracer->stop();
             pathtracer->start_raytracing(-0.1);
             mode = RENDER_MODE;

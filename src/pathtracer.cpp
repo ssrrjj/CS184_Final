@@ -872,7 +872,6 @@ void PathTracer::worker_thread(double refocus) {
 
   Timer timer;
   timer.start();
-  printf("%f\n", refocus);
   WorkItem work;
   while (continueRaytracing && workQueue.try_get_work(&work)) {
     raytrace_tile(work.tile_x, work.tile_y, work.tile_w, work.tile_h, refocus);

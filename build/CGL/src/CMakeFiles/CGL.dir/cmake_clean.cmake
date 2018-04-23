@@ -1,4 +1,4 @@
-FILE(REMOVE_RECURSE
+file(REMOVE_RECURSE
   "CMakeFiles/CGL.dir/vector2D.cpp.o"
   "CMakeFiles/CGL.dir/vector3D.cpp.o"
   "CMakeFiles/CGL.dir/vector4D.cpp.o"
@@ -19,6 +19,6 @@ FILE(REMOVE_RECURSE
 )
 
 # Per-language clean rules from dependency scanning.
-FOREACH(lang C CXX)
-  INCLUDE(CMakeFiles/CGL.dir/cmake_clean_${lang}.cmake OPTIONAL)
-ENDFOREACH(lang)
+foreach(lang C CXX)
+  include(CMakeFiles/CGL.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()
