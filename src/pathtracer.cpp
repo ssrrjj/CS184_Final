@@ -135,7 +135,7 @@ void PathTracer::set_frame_size(size_t width, size_t height) {
   if (state != INIT && state != READY) {
     stop();
   }
-  sampleBuffer.resize(width, height, 6, 6);
+  sampleBuffer.resize(width, height, 7, 7);
   frameBuffer.resize(width, height);
   cell_tl = Vector2D(0,0); 
   cell_br = Vector2D(width, height);
