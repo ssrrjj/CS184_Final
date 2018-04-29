@@ -326,10 +326,18 @@ struct LFImageBuffer {
       for (size_t x = x0; x < x1; ++x) {
         std::vector<Spectrum> grid = data[x + y * w];
         Spectrum s = Spectrum(0, 0, 0);
+        /*
         for (auto &spec : grid) {
           s += spec;
         }
-        s = s/float(subw * subh);
+        */
+       for (int i = 1; i < subh - 1; i++) {
+         for (int j = 1; j < subw - 1; j++) {
+           s += grid[i * subw + j];
+         }
+       }
+
+        s = s/float((subw-1) * (subh-1));
 //        const Spectrum& s = data[x + y * w];
         float r = pow(s.r * exposure, one_over_gamma);
         float g = pow(s.g * exposure, one_over_gamma);
@@ -339,14 +347,16 @@ struct LFImageBuffer {
     }
   }
 
-  Spectrum getray(double x, double y, double d, int lenx, int leny) {
+  Spectrum getray(double x, double y, double d, int a, int lenx, int leny) {
     double u,v;
     double wstep = 1.0/subw;
     double hstep = 1.0/subh;
+    double rad = radius/6.0*5.0;
+    rad = rad/5.0*(5.0+a);
     u = lenx*hstep+hstep/2;
-    u = u*2*radius-radius;
+    u = u*2*rad-rad;
     v = leny*wstep+wstep/2;
-    v = v*2*radius - radius;
+    v = v*2*rad-rad;
 //    double x1 = u + (x-u)/(1-d);
 //    double y1 = v + (y-v)/(1-d);
 //    double x1 = focal/(focal+d)*(u+x)-u;
@@ -384,13 +394,39 @@ struct LFImageBuffer {
       for (size_t x = x0; x < x1; ++x) {
         Spectrum s = Spectrum(0, 0, 0);
         int i, j;
-        for (i = 0 ; i < subh; i ++) {
-          for (j = 0 ; j < subw; j ++) {
-            s += getray(x, y, d, j,i);
+        for (i = 1 ; i < subh - 1; i ++) {
+          for (j = 1 ; j < subw - 1; j ++) {
+            s += getray(x, y, d, 0, j,i);
           }
         }
 //        printf("\n");
         s = s/float(subw * subh);
+        float r = pow(s.r * exposure, one_over_gamma);
+        float g = pow(s.g * exposure, one_over_gamma);
+        float b = pow(s.b * exposure, one_over_gamma);
+        target.update_pixel(Color(r, g, b, 1.0), x, y);
+      }
+    }
+  }
+
+  void reAperture(ImageBuffer& target, size_t x0, size_t y0, size_t x1, size_t y1, double d, int a) {
+    float gamma = 2.2f;
+    float level = 1.0f;
+    float wstep = 1.0/subw;
+    float hstep = 1.0/subh;
+    float one_over_gamma = 1.0f / gamma;
+    float exposure = sqrt(pow(2,level));
+    for (size_t y = y0; y < y1; ++y) {
+      for (size_t x = x0; x < x1; ++x) {
+        Spectrum s = Spectrum(0, 0, 0);
+        int i, j;
+        for (i = 1 - a; i < subh - 1 + a; i ++) {
+          for (j = 1 - a ; j < subw - 1 + a; j ++) {
+            s += getray(x, y, d, a, j,i);
+          }
+        }
+//        printf("\n");
+        s = s/float((subw-1+a) * (subh-1+a));
         float r = pow(s.r * exposure, one_over_gamma);
         float g = pow(s.g * exposure, one_over_gamma);
         float b = pow(s.b * exposure, one_over_gamma);

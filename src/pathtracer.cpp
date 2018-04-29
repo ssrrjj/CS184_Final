@@ -135,7 +135,7 @@ void PathTracer::set_frame_size(size_t width, size_t height) {
   if (state != INIT && state != READY) {
     stop();
   }
-  sampleBuffer.resize(width, height, 4, 4);
+  sampleBuffer.resize(width, height, 6, 6);
   frameBuffer.resize(width, height);
   cell_tl = Vector2D(0,0); 
   cell_br = Vector2D(width, height);
@@ -219,7 +219,7 @@ void PathTracer::start_visualizing() {
   state = VISUALIZE;
 }
 static double defaco = 0.0;
-void PathTracer::start_raytracing(double refocus) {
+void PathTracer::start_raytracing(double refocus, int aperture) {
   if (state != READY) return;
 
   // Intersection isect;
@@ -234,7 +234,7 @@ void PathTracer::start_raytracing(double refocus) {
   state = RENDERING;
   continueRaytracing = true;
   workerDoneCount = 0;
-  if (refocus == 0)
+  if (refocus == 0 && aperture == 0)
     sampleBuffer.clear();
   if (!render_cell) {
     frameBuffer.clear();
@@ -275,14 +275,14 @@ void PathTracer::start_raytracing(double refocus) {
   // launch threads
   fprintf(stdout, "[PathTracer] Rendering... "); fflush(stdout);
   for (int i=0; i<numWorkerThreads; i++) {
-      workerThreads[i] = new std::thread(&PathTracer::worker_thread, this, refocus);
+      workerThreads[i] = new std::thread(&PathTracer::worker_thread, this, refocus, aperture);
   }
 }
 
 void PathTracer::render_to_file(string filename, size_t x, size_t y, size_t dx, size_t dy) {
   if (x == -1) {
     unique_lock<std::mutex> lk(m_done);
-    start_raytracing(0);
+    start_raytracing(0, 0);
     cv_done.wait(lk, [this]{ return state == DONE; });
     lk.unlock();
     save_image(filename);
@@ -807,7 +807,7 @@ std::vector<Spectrum> PathTracer::raytrace_pixel(size_t x, size_t y) {
 }
 
 void PathTracer::raytrace_tile(int tile_x, int tile_y,
-                               int tile_w, int tile_h, double refocus) {
+                               int tile_w, int tile_h, double refocus, int aperture) {
 
   size_t w = sampleBuffer.w;
   size_t h = sampleBuffer.h;
@@ -823,6 +823,9 @@ void PathTracer::raytrace_tile(int tile_x, int tile_y,
   size_t num_samples_tile = tile_samples[tile_idx_x + tile_idx_y * num_tiles_w];
   if (refocus != 0) {
     sampleBuffer.Refocus(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco);
+  }
+  else if (aperture != 0) {
+    sampleBuffer.reAperture(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco, aperture);
   }
   else {
     for (size_t y = tile_start_y; y < tile_end_y; y++) {
@@ -856,7 +859,7 @@ void PathTracer::raytrace_cell(ImageBuffer& buffer) {
   render_cell = true;
   {
     unique_lock<std::mutex> lk(m_done);
-    start_raytracing(0);
+    start_raytracing(0, 0);
     cv_done.wait(lk, [this]{ return state == DONE; });
     lk.unlock();
   }
@@ -868,13 +871,13 @@ void PathTracer::raytrace_cell(ImageBuffer& buffer) {
   }
 }
 
-void PathTracer::worker_thread(double refocus) {
+void PathTracer::worker_thread(double refocus, int aperture) {
 
   Timer timer;
   timer.start();
   WorkItem work;
   while (continueRaytracing && workQueue.try_get_work(&work)) {
-    raytrace_tile(work.tile_x, work.tile_y, work.tile_w, work.tile_h, refocus);
+    raytrace_tile(work.tile_x, work.tile_y, work.tile_w, work.tile_h, refocus, aperture);
     { 
       lock_guard<std::mutex> lk(m_done);
       ++tilesDone;
