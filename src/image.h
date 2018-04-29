@@ -337,7 +337,7 @@ struct LFImageBuffer {
          }
        }
 
-        s = s/float((subw-1) * (subh-1));
+        s = s/float((subw-2) * (subh-2));
 //        const Spectrum& s = data[x + y * w];
         float r = pow(s.r * exposure, one_over_gamma);
         float g = pow(s.g * exposure, one_over_gamma);
@@ -347,16 +347,14 @@ struct LFImageBuffer {
     }
   }
 
-  Spectrum getray(double x, double y, double d, int a, int lenx, int leny) {
+  Spectrum getray(double x, double y, double d, int lenx, int leny) {
     double u,v;
     double wstep = 1.0/subw;
     double hstep = 1.0/subh;
-    double rad = radius/6.0*5.0;
-    rad = rad/5.0*(5.0+a);
     u = lenx*hstep+hstep/2;
-    u = u*2*rad-rad;
+    u = u*2*radius-radius;
     v = leny*wstep+wstep/2;
-    v = v*2*rad-rad;
+    v = v*2*radius-radius;
 //    double x1 = u + (x-u)/(1-d);
 //    double y1 = v + (y-v)/(1-d);
 //    double x1 = focal/(focal+d)*(u+x)-u;
@@ -396,11 +394,11 @@ struct LFImageBuffer {
         int i, j;
         for (i = 1 ; i < subh - 1; i ++) {
           for (j = 1 ; j < subw - 1; j ++) {
-            s += getray(x, y, d, 0, j,i);
+            s += getray(x, y, d, j,i);
           }
         }
 //        printf("\n");
-        s = s/float(subw * subh);
+        s = s/float((subw-2) * (subh-2));
         float r = pow(s.r * exposure, one_over_gamma);
         float g = pow(s.g * exposure, one_over_gamma);
         float b = pow(s.b * exposure, one_over_gamma);
@@ -422,11 +420,11 @@ struct LFImageBuffer {
         int i, j;
         for (i = 1 - a; i < subh - 1 + a; i ++) {
           for (j = 1 - a ; j < subw - 1 + a; j ++) {
-            s += getray(x, y, d, a, j,i);
+            s += getray(x, y, d, j,i);
           }
         }
 //        printf("\n");
-        s = s/float((subw-1+a) * (subh-1+a));
+        s = s/float((subw-2+a*2) * (subh-2+a*2));
         float r = pow(s.r * exposure, one_over_gamma);
         float g = pow(s.g * exposure, one_over_gamma);
         float b = pow(s.b * exposure, one_over_gamma);
