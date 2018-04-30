@@ -135,7 +135,7 @@ void PathTracer::set_frame_size(size_t width, size_t height) {
   if (state != INIT && state != READY) {
     stop();
   }
-  sampleBuffer.resize(width, height, 7, 7);
+  sampleBuffer.resize(width, height, 9, 9);
   frameBuffer.resize(width, height);
   cell_tl = Vector2D(0,0); 
   cell_br = Vector2D(width, height);
@@ -792,19 +792,36 @@ std::vector<Spectrum> PathTracer::raytrace_pixel(size_t x, size_t y) {
 
   Vector2D lensp;
   Spectrum newsample;
-  int subw = sampleBuffer.subw;
-  int subh = sampleBuffer.subh;
+  int subw = (sampleBuffer.subw+1)/2;
+  int subh = (sampleBuffer.subh+1)/2;
   double wstep = 1.0/subw;
   double hstep = 1.0/subh;
-  grid.resize(subh * subw);
+  grid.resize(sampleBuffer.subh * sampleBuffer.subw);
   for (i = 0 ; i < subh; i ++) {
     for (j = 0 ; j < subw; j ++) {
       lensp = Vector2D(i*hstep+hstep/2, j*wstep+wstep/2);
       newsample = est_radiance_global_illumination(camera->generate_ray_for_thin_lens((x+0.5)/w, (y+0.5)/h, lensp.x, lensp.y));
-      grid[i*subh+j] = newsample;
+      grid[i*2*(subh*2-1)+j*2] = newsample;
 
     }
 
+  }
+  for (i = 0 ; i < sampleBuffer.subh; i ++) {
+    for (j = 0 ; j < sampleBuffer.subw ;j ++) {
+      if (i%2 == 0 && j%2 == 0)
+        continue;
+      if (i%2 == 0 && j%2 == 1) {
+        grid[i*sampleBuffer.subh + j] = 0.5*(grid[i*sampleBuffer.subh+j-1]+grid[i*sampleBuffer.subh+j+1]);
+      }
+      else if (i%2==1&&j%2==0) {
+        grid[i*sampleBuffer.subh + j] = 0.5*(grid[(i-1)*sampleBuffer.subh + j] + grid[(i+1)*sampleBuffer.subh + j]);
+      }
+      else {
+        grid[i*sampleBuffer.subh + j] = 0.25*(grid[(i-1)*sampleBuffer.subh+j-1]+grid[(i-1)*sampleBuffer.subh+j+1]
+                                              + grid[(i+1)*sampleBuffer.subh+j-1]+grid[(i+1)*sampleBuffer.subh+j+1]
+                                                    );
+      }
+    }
   }
 //  sampleCountBuffer[y*w+x] += n;
   return grid;
