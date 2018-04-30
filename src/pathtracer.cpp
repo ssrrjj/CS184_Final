@@ -219,6 +219,7 @@ void PathTracer::start_visualizing() {
   state = VISUALIZE;
 }
 static double defaco = 0.0;
+static int aper = 0;
 void PathTracer::start_raytracing(double refocus, int aperture) {
   if (state != READY) return;
 
@@ -231,6 +232,9 @@ void PathTracer::start_raytracing(double refocus, int aperture) {
   rayLog.clear();
   workQueue.clear();
   defaco += refocus;
+  aper += aperture;
+  if (1-aper < 0 || 1 - aper >= sampleBuffer.subh - 1 + aper)
+    aper -= aperture;
   state = RENDERING;
   continueRaytracing = true;
   workerDoneCount = 0;
@@ -825,7 +829,7 @@ void PathTracer::raytrace_tile(int tile_x, int tile_y,
     sampleBuffer.Refocus(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco);
   }
   else if (aperture != 0) {
-    sampleBuffer.reAperture(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco, aperture);
+    sampleBuffer.reAperture(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco, aper);
   }
   else {
     for (size_t y = tile_start_y; y < tile_end_y; y++) {
@@ -838,7 +842,7 @@ void PathTracer::raytrace_tile(int tile_x, int tile_y,
   }
 
   tile_samples[tile_idx_x + tile_idx_y * num_tiles_w] += 1;
-  if (refocus != 0)
+  if (refocus != 0 || aperture != 0)
     return;
   sampleBuffer.toColor(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y);
 }

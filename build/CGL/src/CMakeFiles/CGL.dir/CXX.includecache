@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -220,15 +220,15 @@ GL/glext.h
 GL/glu.h
 -
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/base64.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/base64.cpp
 base64.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/base64.h
+/home/cs184/184tmp/CS184_Final/CGL/src/base64.h
 iostream
 -
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/color.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/color.cpp
 color.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/color.h
+/home/cs184/184tmp/CS184_Final/CGL/src/color.h
 stdio.h
 -
 string.h
@@ -238,13 +238,13 @@ ostream
 sstream
 -
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/complex.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/complex.cpp
 complex.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/complex.h
+/home/cs184/184tmp/CS184_Final/CGL/src/complex.h
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/lodepng.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/lodepng.cpp
 lodepng.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/lodepng.h
+/home/cs184/184tmp/CS184_Final/CGL/src/lodepng.h
 stdio.h
 -
 stdlib.h
@@ -252,41 +252,41 @@ stdlib.h
 fstream
 -
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/matrix3x3.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/matrix3x3.cpp
 matrix3x3.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/matrix3x3.h
+/home/cs184/184tmp/CS184_Final/CGL/src/matrix3x3.h
 iostream
 -
 cmath
 -
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/matrix4x4.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/matrix4x4.cpp
 matrix4x4.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/matrix4x4.h
+/home/cs184/184tmp/CS184_Final/CGL/src/matrix4x4.h
 iostream
 -
 cmath
 -
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/osdtext.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/osdtext.cpp
 osdtext.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/osdtext.h
+/home/cs184/184tmp/CS184_Final/CGL/src/osdtext.h
 iostream
 -
 ft2build.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/ft2build.h
+/home/cs184/184tmp/CS184_Final/CGL/src/ft2build.h
 base64.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/base64.h
+/home/cs184/184tmp/CS184_Final/CGL/src/base64.h
 console.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/console.h
+/home/cs184/184tmp/CS184_Final/CGL/src/console.h
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/quaternion.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/quaternion.cpp
 quaternion.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/quaternion.h
+/home/cs184/184tmp/CS184_Final/CGL/src/quaternion.h
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/spectrum.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/spectrum.cpp
 spectrum.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/spectrum.h
+/home/cs184/184tmp/CS184_Final/CGL/src/spectrum.h
 stdio.h
 -
 string.h
@@ -296,9 +296,9 @@ ostream
 sstream
 -
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/tinyxml2.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/tinyxml2.cpp
 tinyxml2.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/tinyxml2.h
+/home/cs184/184tmp/CS184_Final/CGL/src/tinyxml2.h
 new
 -
 stddef.h
@@ -306,21 +306,21 @@ stddef.h
 cstddef
 -
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/vector2D.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/vector2D.cpp
 vector2D.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/vector2D.h
+/home/cs184/184tmp/CS184_Final/CGL/src/vector2D.h
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/vector3D.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/vector3D.cpp
 vector3D.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/vector3D.h
+/home/cs184/184tmp/CS184_Final/CGL/src/vector3D.h
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/vector4D.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/vector4D.cpp
 vector4D.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/vector4D.h
+/home/cs184/184tmp/CS184_Final/CGL/src/vector4D.h
 
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/viewer.cpp
+/home/cs184/184tmp/CS184_Final/CGL/src/viewer.cpp
 viewer.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/viewer.h
+/home/cs184/184tmp/CS184_Final/CGL/src/viewer.h
 stdio.h
 -
 cmath
@@ -332,13 +332,13 @@ iostream
 algorithm
 -
 GL/glew.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/GL/glew.h
+/home/cs184/184tmp/CS184_Final/CGL/src/GL/glew.h
 console.h
-/Users/wei/Study/Graphics/project/CS184_Final/CGL/src/console.h
+/home/cs184/184tmp/CS184_Final/CGL/src/console.h
 
-/usr/local/include/freetype2/freetype/config/ftheader.h
+/usr/include/freetype2/config/ftheader.h
 
-/usr/local/include/freetype2/ft2build.h
-freetype/config/ftheader.h
+/usr/include/freetype2/ft2build.h
+config/ftheader.h
 -
 
