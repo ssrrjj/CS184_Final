@@ -469,6 +469,26 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
             pathtracer->start_raytracing(0, 1);
             mode = RENDER_MODE;
             break;
+          case Direction::UP:
+            pathtracer->stop();
+            pathtracer->start_raytracing(0, Direction::UP);
+            mode = RENDER_MODE;
+            break;
+          case Direction::DOWN:
+            pathtracer->stop();
+            pathtracer->start_raytracing(0, Direction::DOWN);
+            mode = RENDER_MODE;
+            break;
+          case Direction::LEFT:
+            pathtracer->stop();
+            pathtracer->start_raytracing(0, Direction::LEFT);
+            mode = RENDER_MODE;
+            break;
+          case Direction::RIGHT:
+            pathtracer->stop();
+            pathtracer->start_raytracing(0, Direction::RIGHT);
+            mode = RENDER_MODE;
+            break;
           case 'd': case 'D':
             camera.dump_settings(filename + "_cam_settings.txt");
             break;

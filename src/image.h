@@ -7,6 +7,8 @@
 #include <vector>
 #include <string.h>
 
+enum Direction {UP = 265, DOWN = 264, LEFT = 263, RIGHT = 262};
+
 namespace CGL {
 
 /**
@@ -418,13 +420,49 @@ struct LFImageBuffer {
       for (size_t x = x0; x < x1; ++x) {
         Spectrum s = Spectrum(0, 0, 0);
         int i, j;
-        for (i = 1 - a; i < subh - 1 + a; i ++) {
-          for (j = 1 - a ; j < subw - 1 + a; j ++) {
-            s += getray(x, y, d, j,i);
+        if (a == 1 || a == -1) {
+          for (i = 1 - a; i < subh - 1 + a; i ++) {
+            for (j = 1 - a ; j < subw - 1 + a; j ++) {
+              s += getray(x, y, d, j,i);
+            }
           }
+          s = s/float((subw-2+a*2) * (subh-2+a*2));
+        }
+        else {
+          //printf("%d\n", a);
+          switch(a) {
+            case Direction::UP:
+              for (i = 4; i < subh; i++) {
+                for (j = 2; j < subw - 2; j++) {
+                  s+= getray(x, y, d, j, i);
+                }
+              }
+              break;
+            case Direction::DOWN:
+              for (i = 0; i < subh - 4; i++) {
+                for (j = 2; j < subw - 2; j++) {
+                  s+= getray(x, y, d, j, i);
+                }
+              }
+              break;
+            case Direction::LEFT:
+              for (i = 2; i < subh - 2; i++) {
+                for (j = 4; j < subw; j++) {
+                  s+= getray(x, y, d, j, i);
+                }
+              }
+              break;
+            case Direction::RIGHT:
+              for (i = 2; i < subh - 2; i++) {
+                for (j = 0; j < subw - 4; j++) {
+                  s+= getray(x, y, d, j, i);
+                }
+              }
+              break;
+          }
+          s = s/float((subw-4) * (subh-4));
         }
 //        printf("\n");
-        s = s/float((subw-2+a*2) * (subh-2+a*2));
         float r = pow(s.r * exposure, one_over_gamma);
         float g = pow(s.g * exposure, one_over_gamma);
         float b = pow(s.b * exposure, one_over_gamma);
