@@ -443,7 +443,7 @@ struct LFImageBuffer {
       for (size_t x = x0; x < x1; ++x) {
         Spectrum s = Spectrum(0, 0, 0);
         int i, j;
-        if (a == 1 || a == -1) {
+        if (a < 10 || a > -10) {
           for (i = 1 - a; i < subh - 1 + a; i ++) {
             for (j = 1 - a ; j < subw - 1 + a; j ++) {
               s += getray(x, y, d, j,i);
