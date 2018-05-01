@@ -138,7 +138,7 @@ class PathTracer {
   /**
    * If the pathtracer is in READY, transition to RENDERING.
    */
-  void start_raytracing(double refocus, int aperture);
+  void start_raytracing(double refocus, int aperture, Vector2D pos = Vector2D(0, 0));
 
   void render_to_file(std::string filename, size_t x, size_t y, size_t dx, size_t dy);
   
@@ -162,7 +162,7 @@ class PathTracer {
   Vector2D cell_tl, cell_br;
   bool render_cell;
 
- private:
+// private:
 
   /**
    * Used in initialization.
@@ -205,12 +205,12 @@ class PathTracer {
    * Raytrace a tile of the scene and update the frame buffer. Is run
    * in a worker thread.
    */
-  void raytrace_tile(int tile_x, int tile_y, int tile_w, int tile_h, double refocus, int aperture);
+  void raytrace_tile(int tile_x, int tile_y, int tile_w, int tile_h, double refocus, int aperture, Vector2D pos = Vector2D(0, 0));
 
   /**
    * Implementation of a ray tracer worker thread
    */
-  void worker_thread(double refocus, int aperture);
+  void worker_thread(double refocus, int aperture, Vector2D pos = Vector2D(0, 0));
 
   /**
    * Log a ray miss.

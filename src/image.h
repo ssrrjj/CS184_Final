@@ -241,7 +241,18 @@ struct LFImageBuffer {
     for (auto &grid : data) {
       grid.resize(subh * subw);
     }
+    printf("resize\n");
     clear();
+    for (int i = 0 ; i < 10 ; i ++) {
+      printf("%d\n", i);
+      alphaimage[i].resize(w * h);
+      for (auto & grid: alphaimage[i]) {
+        grid.resize(subh*subw);
+      }
+      refocusimage[i].resize(w , h);
+    }
+    alphamap.resize(w* h);
+    printf("f\n");
   }
 
   /**
@@ -256,62 +267,6 @@ struct LFImageBuffer {
     data[x + y * w] = grid;
   }
 
-  /**
-   * Update the color of a given pixel. Blend new pixel color with current
-   * pixel data in the buffer according to the blending factor. The result
-   * of this would be buffer[i] = s * r + buffer[i] * (1-r);
-   * \param s new spectrum value to be set
-   * \param x row of the pixel
-   * \param y column of the pixel
-   * \param r blending factor
-   */
-
-  /*
-  void update_pixel(const Spectrum& s, size_t x, size_t y, float r) {
-    // assert(0 <= x && x < w);
-    // assert(0 <= y && y < h);
-    data[x + y * w] = s * r + (1 - r) * data[x + y * w];
-  }
-*/
-
-  /**
-   * Tonemap and convert to color space image.
-   * \param target target color buffer to store output
-   * \param gamma gamma value
-   * \param level exposure level adjustment
-   * \key   key value to map average tone to (higher means brighter)
-   * \why   white point (higher means larger dynamic range)
-   */
-  /*
-  void tonemap(ImageBuffer& target,
-    float gamma, float level, float key, float wht) {
-
-    // compute global log average luminance!
-    float avg = 0;
-    for (size_t i = 0; i < w * h; ++i) {
-      // the small delta value below is used to avoids singularity
-      avg += log(0.0000001f + data[i].illum());
-    }
-    avg = exp(avg / (w * h));
-
-
-    // apply on pixels
-    float one_over_gamma = 1.0f / gamma;
-    float exposure = sqrt(pow(2,level));
-    for (size_t y = 0; y < h; ++y) {
-      for (size_t x = 0; x < w; ++x) {
-        Spectrum s = data[x + y * w];
-        float l = s.illum();
-        s *= key / avg;
-        s *= ((l + 1) / (wht * wht)) / (l + 1);
-        float r = pow(s.r * exposure, one_over_gamma);
-        float g = pow(s.g * exposure, one_over_gamma);
-        float b = pow(s.b * exposure, one_over_gamma);
-        target.update_pixel(Color(r, g, b, 1.0), x, y);
-      }
-    }
-  }
-*/
 
   /**
    * Convert the given tile of the buffer to color.
@@ -381,32 +336,104 @@ struct LFImageBuffer {
     return ret;
 
   }
-  void Refocus(ImageBuffer& target, size_t x0, size_t y0, size_t x1, size_t y1, double d) {
+  void Refocus(ImageBuffer& target, size_t x0, size_t y0, size_t x1, size_t y1, double d, Vector2D pos) {
     float gamma = 2.2f;
     float level = 1.0f;
-    float wstep = 1.0/subw;
-    float hstep = 1.0/subh;
     float one_over_gamma = 1.0f / gamma;
     float exposure = sqrt(pow(2,level));
+    int posx = floor(pos.x*w);
+    int posy = floor(pos.y*h);
+    int leftx = posx>=3? posx-3:0;
+    int lefty = posy>=3? posy-3:0;
+    int rx = posx<w-3? posx+3:w;
+    int ry = posy<h-3? posy+3:h;
+    int a=0;
+    for (int i = leftx; i < rx; i ++) {
+      for (int j = lefty; j < ry ; j ++) {
+//        printf("%d, %d\n", i, j);
+        a += alphamap[i+j*w];
+//        printf("%d\n", a);
+      }
+    }
+    a = a/((rx-leftx)*(ry-lefty));
+//    printf("%d\n", a);
     for (size_t y = y0; y < y1; ++y) {
       for (size_t x = x0; x < x1; ++x) {
-        Spectrum s = Spectrum(0, 0, 0);
-        int i, j;
-        for (i = 1 ; i < subh - 1; i ++) {
-          for (j = 1 ; j < subw - 1; j ++) {
-            s += getray(x, y, d, j,i);
-          }
-        }
-//        printf("\n");
-        s = s/float((subw-2) * (subh-2));
+
+        Spectrum s;
+        s = refocusimage[a].data[x+y*w];
         float r = pow(s.r * exposure, one_over_gamma);
         float g = pow(s.g * exposure, one_over_gamma);
         float b = pow(s.b * exposure, one_over_gamma);
+        
         target.update_pixel(Color(r, g, b, 1.0), x, y);
       }
     }
   }
+  void compute_alphamap() {
+    static int computed = 0;
+    if (computed) {
+      return;
+    }
+    computed = 1;
+    printf("compute_alphamap\n");
+    double pitch = 2 * radius/subw;
+    int x, y, u, v, px, py, a;
+    for (a = 0 ; a < 10 ; a ++) {
+      printf("%d\n", a);
+      double d = -0.5+0.1*a;
+      for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+          Spectrum s = Spectrum(0, 0, 0);
+          Spectrum t;
+          int i, j;
+          for (i = 0 ; i < subh; i ++) {
+            for (j = 0 ; j < subw; j ++) {
+              t = getray(x, y, d, j,i);
+              s += t;
+              alphaimage[i][x+w*y][j+subw*i] = t;
+            }
+          }
+  //        printf("\n");
+          s = s/float(subw * subh);
+          refocusimage[a].data[x+y*w] = s;
+          
+        }
+      }
+    }
+    printf("finish alphaimage\n");
+    for (x = 0 ; x < w; x ++) {
+      for (y = 0 ; y < h ; y ++) {
+        double mins =1000000000000000;
+        int mina = -1;
+        for (a = 0 ; a < 10 ; a ++) {
+          double square_sum = 0;
+          double variance = 0;
+          Spectrum spa;
+          Vector3D rgb;
+          for (u = 0 ; u < subw; u ++) {
+            for (v = 0 ; v < subh ; v ++) {
+              spa = alphaimage[a][x+w*y][u + v*subw];
+              rgb = Vector3D(spa.r, spa.g, spa.b);
+              square_sum = square_sum + rgb.norm2();
+            }
+          }
+          square_sum = square_sum/(subh*subw);
+          spa = refocusimage[a].data[x+y*w];
+          rgb = Vector3D(spa.r, spa.g, spa.b);
+          variance = square_sum - rgb.norm2();
+          if (variance < mins) {
+            mins = variance;
+            mina = a;
+          }
+        }
+        alphamap[x+y*w] = mina;
+        printf("%d\n", mina);
+      }
+    }
+    printf("finish alphamap\n");
 
+  }
   void reAperture(ImageBuffer& target, size_t x0, size_t y0, size_t x1, size_t y1, double d, int a) {
     float gamma = 2.2f;
     float level = 1.0f;
@@ -455,8 +482,12 @@ struct LFImageBuffer {
   size_t subh;
   double radius;
   std::vector<std::vector<Spectrum>> data; ///< pixel buffer
+
   double cw, ch;
   double focal;
+  std::vector<std::vector<Spectrum>> alphaimage[10];
+  HDRImageBuffer refocusimage[10];
+  std::vector<int> alphamap;
 }; // class HDRImageBuffer
 
 } // namespace CGL

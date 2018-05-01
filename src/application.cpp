@@ -554,6 +554,7 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
 void Application::mouse_pressed(e_mouse_button b) {
   switch (b) {
     case LEFT:
+      printf("hhh, %d\n", mode);
       if (mode == EDIT_MODE) {
         if (scene->has_hover()) {
           scene->confirm_selection();
@@ -563,6 +564,19 @@ void Application::mouse_pressed(e_mouse_button b) {
       } else if (mode == RENDER_MODE && pathtracer->render_cell) {
         pathtracer->cell_tl = Vector2D(mouseX, screenH - mouseY);
         pathtracer->cell_br = pathtracer->cell_tl;
+      } else if (mode == RENDER_MODE) {
+        printf("reach here\n");
+        pathtracer->sampleBuffer.compute_alphamap();
+        Vector2D mousepos = Vector2D(mouseX, screenH - mouseY);
+        mousepos.x = mousepos.x/float(screenW);
+        mousepos.y = mousepos.y/float(screenH);
+        int a,b;
+        a = mousepos.x*pathtracer->sampleBuffer.w;
+        b = mousepos.y * pathtracer->sampleBuffer.h;
+        printf("%d, %d\n", a, b);
+        pathtracer->stop();
+        pathtracer->start_raytracing(-0.1,0, mousepos);
+        printf("end refocus\n");
       }
       leftDown = true;
       break;
