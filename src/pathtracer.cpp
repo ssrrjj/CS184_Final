@@ -846,7 +846,7 @@ void PathTracer::raytrace_tile(int tile_x, int tile_y,
     sampleBuffer.Refocus(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco, pos);
   }
   else if (aperture != 0) {
-    sampleBuffer.reAperture(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco, aper);
+    sampleBuffer.reAperture(frameBuffer, tile_start_x, tile_start_y, tile_end_x, tile_end_y, defaco, aperture);
   }
   else {
     for (size_t y = tile_start_y; y < tile_end_y; y++) {
