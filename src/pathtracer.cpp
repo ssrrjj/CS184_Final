@@ -235,6 +235,7 @@ void PathTracer::start_raytracing(double refocus, int aperture, Vector2D pos) {
   aper += aperture;
   if (1-aper < 0 || 1 - aper >= sampleBuffer.subh - 1 + aper)
     aper -= aperture;
+
   state = RENDERING;
   continueRaytracing = true;
   workerDoneCount = 0;
@@ -279,7 +280,11 @@ void PathTracer::start_raytracing(double refocus, int aperture, Vector2D pos) {
   // launch threads
   fprintf(stdout, "[PathTracer] Rendering... "); fflush(stdout);
   for (int i=0; i<numWorkerThreads; i++) {
-      workerThreads[i] = new std::thread(&PathTracer::worker_thread, this, refocus, aperture, pos);
+      int aa;
+      if (aperture>10)
+        aa = aperture;
+      else aa = aper;
+      workerThreads[i] = new std::thread(&PathTracer::worker_thread, this, refocus, aa, pos);
   }
 }
 

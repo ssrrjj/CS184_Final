@@ -243,10 +243,8 @@ struct LFImageBuffer {
     for (auto &grid : data) {
       grid.resize(subh * subw);
     }
-    printf("resize\n");
     clear();
     for (int i = 0 ; i < 10 ; i ++) {
-      printf("%d\n", i);
       alphaimage[i].resize(w * h);
       for (auto & grid: alphaimage[i]) {
         grid.resize(subh*subw);
@@ -254,7 +252,6 @@ struct LFImageBuffer {
       refocusimage[i].resize(w , h);
     }
     alphamap.resize(w* h);
-    printf("f\n");
   }
 
   /**
@@ -430,7 +427,6 @@ struct LFImageBuffer {
           }
         }
         alphamap[x+y*w] = mina;
-        printf("%d\n", mina);
       }
     }
     printf("finish alphamap\n");
