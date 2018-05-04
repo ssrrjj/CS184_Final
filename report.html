@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <style>
+        div.padded {
+            padding-top: 0px;
+            padding-right: 100px;
+            padding-bottom: 0.25in;
+            padding-left: 100px;
+        }
+    </style>
+    <title>Final Project Report | CS 184</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+</head>
+<body>
+<br/>
+
+<!-- Title, Summary and Team Members -->
+<h1 align="middle">Final Project Report - Light Field Camera</h1>
+<br>
+<div class="padded" style="font-size:120%">
+    <h3 align="middle">Members</h3>
+    <p align="middle">Name: JIYUAN LU &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp SID: 3033483733</p>
+    <p align="middle">Name: RENJIE SHAO &nbsp &nbsp &nbsp &nbsp SID: 3033530192</p>
+    <p align="middle">Name: NAN WEI &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp SID: 3033530205</p>
+
+    <h3 align="middle">Abstract</h3>
+    <p>
+        During project 3, we implement a renderer that can trace radiance to generate the 2D image. During this process, light from the environment or objects is received by the lens and drops into pixels in sensor. The traditional way is to store the average spectrum of each pixel. However, information about the direction of light lost during this process. In order to reconstruct the light field, which can be represented by the function from the direction of light to the spectrum, we change each pixel to grid to store the direction information.
+    </p>
+
+    <p>
+        With this extra information, our renderer can do refocusing, depth of field adjustment and camera position adjustment after render. All of these process can be finished in a few seconds, much faster than render. This technic definitely makes images more editable.
+    </p>
+
+    <h3 align="middle">Technical Approach</h3>
+
+    <h4>1. Store light field information</h4>
+
+    <p>
+        To store light field information, we change each pixel to a grid.
+    </p>
+
+    <div align="center">
+            <img src="images/light_field.png" width="600px"/>
+            <figcaption align="middle">Real Light Field Camera</figcaption>
+    </div>
+
+    <p>
+        In our model, microlens array is removed. Instead, we sample fixed positions on lens and store the radiance between each lens position and pixel pair.
+    </p>
+
+    <p>
+        As the picture showed below, in order to store the light field, we need to know 4 position variables and the related spectrum. <code>(u, v)</code> is the lens sample position and <code>(s, t)</code> is the pixel grid position. So we can reconstruct the light fild easily.
+    </p>
+
+    <div align="center">
+            <img src="images/Light_field_1.png" width="600px"/>
+            <figcaption align="middle">Light Field Function</figcaption>
+    </div>
+
+    <h4>2. Refocusing</h4>
+
+    <h4>3. Depth of field adjustment</h4>
+
+    <p>
+        To adjust the depth of field, we use a simple method called <i>digitally stopping down the lens</i>. To get deeper depth of field, we decrease number of samples we use to generate the final image. In our experiment, we takes 7*7 samples on lens. By using the center sub-images, says 3*3 or 4*4, we generate a image with deeper depth of field. We can also do some pre-process, to samples a larger gird on lens. When rendering, we just use the center so that after rendering we can also decrease the depth of field by increase numbers of sub-images to generate image.
+    </p>
+
+    <p>
+        Note that by extending depth of field in this way, we will get image with higher SNR because it wastes light of full aperture. To overcome this problem, we considered to refocus each pixel and form the final image. This method will use all the information. However, since the accuracy of our depth detection algorithm is not high, we did not implement this approach.
+    </p>
+
+    <h4>4. Camera position adjustment</h4>
+
+    <p>
+        We use the same idea as depth of field adjustment in this part. In order to generate image with different camera positions, we use different sub-images. For example, if we want a image that taken by camera that is a little left than before, we can pick a sub-grid in the left of the full sub-images gird.
+    </p>
+
+    <p>
+        The problem is that, since we use CPU to render the image, and need to do a lot pre-process, if we render a lager sub-image grid, it will take really long time and consume too much memory. While with a relatively small sample grid, the difference between each camera position is not so obvious. An approach to solve this problem is to use GPU to render instead CPU. However, we need to rewrite all the skeleton if we choose to render by GPU. Since we have limited time, we do not decided to use this method.
+    </p>
+
+
+</div>
