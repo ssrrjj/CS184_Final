@@ -12,6 +12,23 @@
     <title>Final Project Report | CS 184</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" type="text/css" href="style.css" media="screen"/>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+    <script type="text/javascript" src="path-to-MathJax/MathJax.js">
+    </script>
 </head>
 <body>
 <br/>
@@ -61,7 +78,49 @@
     </div>
 
     <h4>2. Refocusing</h4>
-
+    <h4>2.1 Digital refocusing</h4>
+    <p>
+        <div align="center">
+            <img src="images/refocus.png" width="400px"/>
+            <figcaption align="middle">Fig 1</figcaption>
+        </div>
+        With the information of 4D light field, we can refocus images without doing ray tracing again. Given light field L(x,y,u,v), the irradiance on position (x,y) can be
+        expressed as an integral:
+        $$E(x,y) = \frac{1}{F^2}\int \int L(x,y,u,v)dudv$$
+        $F$ is the distance between sensor plane and lens plane.
+        The method to refocus is to change the separation between sensor plane and lens plane. As is depicted in Fig 1, change the separation from $F$ to $F'$ and the new light
+        field between lens plane and new film plane can be expressed as:
+        $$L'(x',y',u,v)=L(u+\frac{x'-u}{\alpha},v+\frac{y'-v}{\alpha}, u, v)$$
+        $\alpha$ is $\frac{F'}{F}$. Therefore, for a position $(x',y')$ on new film plane, the irradiance can be expressed as:
+        $$E'(x',y') = \frac{1}{\alpha^2F^2}\int\int L(u(1-\frac{1}{\alpha})+\frac{x'}{\alpha},
+            v(1-\frac{1}{\alpha})+\frac{y'}{\alpha},u,v)$$
+        when raytracing, we take $7*7$ samples on the lens for each pixel. To compute the refocus image, use the equation
+        derived above and bilinear interpolation to compute irradiance
+        at position $(x',y')$.
+    </p>
+    <h4>2.2 Anti-aliasing</h4>
+    <p>
+        Computed images will show step-edge aliasing in out of focus area which is caused
+        by low sampling rate on lens. When the sampling rate is low,
+        the shift in neighbouring subaperture images will larger than one pixel, causing step-edge artifacts.
+        To anti-alias, we super sample the lens plane
+        so that the images show less aliasing.
+    </p>
+    <h4>2.3 Depth estimation</h4>
+    <p>
+        For a better user experience, we try to allow users click on the
+        image and obtain an image focusing on the selected point. To implement
+        this, we have to estimate the depth of each position so that we know
+        which focal length to apply when refocusing. The main idea is that if
+        one position is out of focus, rays coming from different direction to
+        this position will have a large variance. $\sigma_d(x,y)$ denotes variance of rays
+        on position $(x,y)$ when focal plane is of depth $d$. The depth at each position
+        (x,y) can be estimated as :
+        $$depth(x,y)=argmax_d \sigma_d(x,y)$$
+        We pre-processing light field to compute refocusing images for different focal plane and
+        estimate depth for each position. To improve correctness of estimation, use a bilateral filter on $depth(x,y)$ to
+        reduce noise.
+    </p>
     <h4>3. Depth of field adjustment</h4>
 
     <p>
